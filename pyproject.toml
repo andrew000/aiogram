@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["maturin>=1.13,<2"]
+build-backend = "maturin"
 
 [project]
 name = "aiogram"
@@ -35,7 +35,6 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
-    "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Libraries :: Application Frameworks",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Communications :: Chat",
@@ -50,8 +49,12 @@ dependencies = [
 ]
 dynamic = ["version"]
 
-[tool.hatch.version]
-path = "aiogram/__meta__.py"
+[tool.maturin]
+manifest-path = "crates/aiogram-rust-session/Cargo.toml"
+module-name = "aiogram.client.session._rust"
+python-source = "."
+python-packages = ["aiogram"]
+features = ["pyo3/extension-module"]
 
 [project.optional-dependencies]
 fast = [

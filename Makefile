@@ -98,6 +98,22 @@ $(locale_targets): docs-serve-%:
 build: clean
 	uv build
 
+.PHONY: build-sdist
+build-sdist: clean
+	uv build --sdist
+
+.PHONY: build-wheel
+build-wheel: clean
+	uvx maturin build --out dist --interpreter python
+
+.PHONY: build-wheel-release
+build-wheel-release: clean
+	uvx maturin build --release --out dist --interpreter python
+
+.PHONY: install-wheel-release
+install-wheel-release:
+	uvx maturin develop --release
+
 .PHONY: bump
 bump:
 	uv run python scripts/bump_version.py $(args)

@@ -1,5 +1,6 @@
 .idea/
 .vscode/
+.cargo/config.toml
 
 __pycache__/
 *.py[cod]
@@ -22,3 +23,8 @@ reports
 
 dev/
 .venv/
+
+# Rust build artifacts
+/target/
+/crates/**/target/
+/crates/**/dist/

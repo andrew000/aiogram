@@ -1,0 +1,24 @@
+[package]
+name = "aiogram-rust-session"
+version = "3.28.2"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT"
+description = "Optional Rust-backed client session transport for aiogram"
+repository = "https://github.com/aiogram/aiogram"
+
+[lib]
+name = "aiogram_client_session_rust"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.28.3", features = ["extension-module"] }
+pyo3-async-runtimes = { version = "0.28.0", features = ["tokio-runtime"] }
+reqwest = { version = "0.13.4", features = ["multipart", "socks", "stream", "form"] }
+tokio = { version = "1.52", features = ["sync"] }
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+debug = false

@@ -7,6 +7,7 @@ on:
     paths:
       - ".github/workflows/tests.yml"
       - "aiogram/**"
+      - "crates/**"
       - "tests/**"
       - "codecov.yaml"
       - "pyproject.toml"
@@ -16,6 +17,7 @@ on:
     paths:
       - ".github/workflows/tests.yml"
       - "aiogram/**"
+      - "crates/**"
       - "tests/**"
       - "pyproject.toml"
 
@@ -64,6 +66,9 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
       - name: Install project dependencies
         run: |
           uv sync --all-extras --group dev --group test
@@ -73,6 +78,11 @@ jobs:
           uv run ruff check --output-format=github aiogram examples
           uv run mypy --native-parser --num-workers 8 aiogram
           uv run ruff format --check --diff aiogram tests scripts examples
+
+      - name: Check Rust extension
+        run: |
+          cargo fmt --check --manifest-path crates/aiogram-rust-session/Cargo.toml
+          cargo clippy --manifest-path crates/aiogram-rust-session/Cargo.toml --all-targets --all-features -- -D warnings
 
       - name: Setup redis
         if: ${{ env.IS_WINDOWS == 'false' }}
@@ -136,6 +146,9 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Install project dependencies
         run: |
