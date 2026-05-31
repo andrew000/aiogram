@@ -206,7 +206,7 @@ class TestBaseSession:
         bot = MockedBot()
         method = DeleteMessage(chat_id=42, message_id=42)
 
-        with pytest.raises(ClientDecodeError, match="JSONDecodeError"):
+        with pytest.raises(ClientDecodeError, match="ValidationError"):
             session.check_response(
                 bot=bot,
                 method=method,
@@ -226,6 +226,23 @@ class TestBaseSession:
                 status_code=200,
                 content='{"ok": "test"}',
             )
+
+    def test_check_response_uses_pydantic_json_validation(self):
+        def custom_loads(value: str) -> Any:
+            raise RuntimeError("custom JSON loader should not be used")
+
+        session = CustomSession(json_loads=custom_loads)
+        bot = MockedBot()
+        method = DeleteMessage(chat_id=42, message_id=42)
+
+        response = session.check_response(
+            bot=bot,
+            method=method,
+            status_code=200,
+            content='{"ok":true,"result":true}',
+        )
+
+        assert response.ok is True
 
     async def test_make_request(self):
         session = CustomSession()

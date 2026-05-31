@@ -83,21 +83,26 @@ class BaseSession(abc.ABC):
         """
         Check response status
         """
+        response_type = Response[method.__returning__]  # type: ignore
         try:
-            json_data = self.json_loads(content)
+            response = response_type.model_validate_json(content, context={"bot": bot})
+        except ValidationError as e:
+            if any(error.get("type") == "json_invalid" for error in e.errors()):
+                msg = "Failed to decode object"
+                raise ClientDecodeError(msg, e, content) from e
+
+            msg = "Failed to deserialize object"
+            try:
+                data = self.json_loads(content)
+            except Exception:  # noqa: BLE001
+                data = content
+            raise ClientDecodeError(msg, e, data) from e
         except Exception as e:  # noqa: BLE001
             # Handled error type can't be classified as specific error
             # in due to decoder can be customized and raise any exception
 
             msg = "Failed to decode object"
             raise ClientDecodeError(msg, e, content) from e
-
-        try:
-            response_type = Response[method.__returning__]  # type: ignore
-            response = response_type.model_validate(json_data, context={"bot": bot})
-        except ValidationError as e:
-            msg = "Failed to deserialize object"
-            raise ClientDecodeError(msg, e, json_data) from e
 
         if HTTPStatus.OK <= status_code <= HTTPStatus.IM_USED and response.ok:
             return response
